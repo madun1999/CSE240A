@@ -7,11 +7,11 @@
 #define LSB(x,i) ((x) & i)
 
 // global branch history table
-void init_GBHR(uint32_t capacity);
+void init_GBHR(uint8_t capacity);
 
-uint32_t get_GBHR();
+uint64_t get_GBHR();
 
-void update_GBHR(uint32_t outcome);
+void update_GBHR(uint8_t outcome);
 
 
 // local branch history table

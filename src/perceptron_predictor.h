@@ -11,21 +11,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define PERCEPTRONS_COUNT ((1 << 1) - 1)
-#define GBHR_SIZE 1
+#define PC_LSB_COUNT 5
+#define PERCEPTRONS_COUNT (1 << PC_LSB_COUNT)
+#define GBHR_SIZE 32
 // #define BHT_SIZE 1
 // #define HISTORY_SIZE GBHR_SIZE + BHT_SIZE
 #define HISTORY_SIZE GBHR_SIZE
-#define WEIGHT_SIZE 1
-#define THRESHOLD 1
-#define PERCEP_MASK 1
+#define THRESHOLD 5
 //------------------------------------//
 //    Predictor Function Prototypes   //
 //------------------------------------//
 
 // Initialize the perceptron predictor
 //
-void init_predictor();
+void init_perceptron_predictor();
 
 // Make a prediction for conditional branch instruction at PC 'pc'
 // Returning TAKEN indicates a prediction of taken; returning NOTTAKEN
