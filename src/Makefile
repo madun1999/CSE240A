@@ -27,5 +27,21 @@ test_custom_all_traces: exec
 	  echo "" >> custom_results.txt ; \
 	done
 
+test_gshare_all_traces: exec
+	rm gshare_results.txt
+	for trace in $(TRACES); do \
+	  echo "Testing" $$trace | tee gshare_results.txt -a ; \
+	  bunzip2 -kc ../traces/$$trace.bz2 | ./predictor --gshare:13 >> gshare_results.txt; \
+	  echo "" >> gshare_results.txt ; \
+	done
+
+test_tournament_all_traces: exec
+	rm tournament_results.txt
+	for trace in $(TRACES); do \
+	  echo "Testing" $$trace | tee tournament_results.txt -a ; \
+	  bunzip2 -kc ../traces/$$trace.bz2 | ./predictor --tournament:9:10:10 >> tournament_results.txt; \
+	  echo "" >> tournament_results.txt ; \
+	done
+
 clean:
 	rm -f *.o predictor;
