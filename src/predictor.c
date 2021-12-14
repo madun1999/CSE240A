@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include "predictor.h"
 #include "perceptron_predictor.h"
+#include "common.h"
 
 //
 // TODO:Student Information
@@ -56,6 +57,7 @@ init_predictor()
     case TOURNAMENT:
       break;
     case CUSTOM:
+      init_GBHR(GBHR_SIZE);
       init_perceptron_predictor();
       break;
     default:
@@ -104,10 +106,13 @@ train_predictor(uint32_t pc, uint8_t outcome)
   //
   switch (bpType) {
     case GSHARE:
+      break;
     case TOURNAMENT:
       break;
     case CUSTOM:
-    train_perceptron_predictor(pc, outcome);
+      train_perceptron_predictor(pc, outcome);
+      update_GBHR(outcome);
+      break;
     default:
       break;
   }

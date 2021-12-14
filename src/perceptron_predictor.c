@@ -8,7 +8,6 @@ int16_t perc_w[PERCEPTRONS_COUNT][HISTORY_SIZE]; // perceptron weights
 
 
 void init_perceptron_predictor() {
-    init_GBHR(GBHR_SIZE);
     // init perceptron weight table
     for (uint16_t i = 0 ; i < PERCEPTRONS_COUNT; i++) {
         for (uint16_t j = 0; j < HISTORY_SIZE + 1; j ++) {
@@ -65,8 +64,6 @@ void train_perceptron_predictor(uint32_t pc, uint8_t outcome) {
             perc_w[perceptron_idx][HISTORY_SIZE] = WEIGHT_MIN;
         }
     }
-
-    update_GBHR(outcome);
 }
 
 // void clean() {
