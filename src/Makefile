@@ -7,13 +7,13 @@ all: exec
 exec: main.o predictor.o perceptron_predictor.o common.o
 	$(CC) $(OPTS) -lm -o predictor main.o predictor.o perceptron_predictor.o common.o
 
-main.o: main.c predictor.h 
+main.o: main.c predictor.h perceptron_predictor.h
 	$(CC) $(OPTS) -c main.c
 
-predictor.o: predictor.h predictor.c
+predictor.o: predictor.h predictor.c perceptron_predictor.h
 	$(CC) $(OPTS) -c predictor.c
 
-perceptron_predictor.o: perceptron_predictor.h perceptron_predictor.c
+perceptron_predictor.o: perceptron_predictor.h perceptron_predictor.c predictor.h
 	$(CC) $(OPTS) -c perceptron_predictor.c
 
 common.o: common.h common.c
@@ -23,7 +23,7 @@ test_custom_all_traces: exec
 	rm custom_results.txt
 	for trace in $(TRACES); do \
 	  echo "Testing" $$trace | tee custom_results.txt -a ; \
-	  bunzip2 -kc ../traces/$$trace.bz2 | ./predictor --custom >> custom_results.txt; \
+	  bunzip2 -kc ../traces/$$trace.bz2 | ./predictor --custom:13:63:6:8 >> custom_results.txt; \
 	  echo "" >> custom_results.txt ; \
 	done
 

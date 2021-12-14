@@ -1,26 +1,24 @@
 #include <stdio.h>
+#include <string.h>
 #include "perceptron_predictor.h"
 #include "predictor.h"
 #include "common.h"
 
-int16_t perc_w[PERCEPTRONS_COUNT][HISTORY_SIZE]; // perceptron weights
 
-
+int16_t **perc_w; // perceptron weights
+int phistoryBits;
+int choiceBits;
 
 void init_perceptron_predictor() {
     // init perceptron weight table
+    perc_w = calloc(PERCEPTRONS_COUNT, sizeof *perc_w);
     for (uint16_t i = 0 ; i < PERCEPTRONS_COUNT; i++) {
-        for (uint16_t j = 0; j < HISTORY_SIZE + 1; j ++) {
-            perc_w[i][j] = 0;
-        }
+        perc_w[i] = calloc(HISTORY_SIZE + 1, sizeof **perc_w);
     }
-    int test = TOTAL_STORAGE;
-    printf("Total storage: %d\n", TOTAL_STORAGE);
-    printf("Max allowed storage: %d\n", MAX_ALLOWED_STORAGE);
 }
 
 int32_t calculate_perceptron(uint32_t pc) {
-    uint64_t gbhr = get_GBHR();
+    uint64_t gbhr = get_GBHR(GBHR_SIZE);
     int32_t y = 0;
     uint32_t perceptron_idx = LSB(pc, PC_LSB_MASK);
 
@@ -41,7 +39,7 @@ uint8_t make_perceptron_prediction(uint32_t pc) {
 // indicates that the branch was not taken)
 //
 void train_perceptron_predictor(uint32_t pc, uint8_t outcome) {
-    uint64_t gbhr = get_GBHR();
+    uint64_t gbhr = get_GBHR(GBHR_SIZE);
     int32_t output_value = calculate_perceptron(pc);
     uint8_t predicted = (output_value >= 0) ? TAKEN : NOTTAKEN;
     uint32_t perceptron_idx = LSB(pc, PC_LSB_MASK);
@@ -69,3 +67,28 @@ void train_perceptron_predictor(uint32_t pc, uint8_t outcome) {
 // void clean() {
 //     free(perc_w);
 // }
+
+uint8_t *choice_table;
+
+void init_choice_predictor() {
+    choice_table = (uint8_t*) malloc(sizeof(uint8_t) * (1 << choiceBits));
+    memset(choice_table, WN, (1 << choiceBits) * sizeof(uint8_t));
+}
+uint8_t make_choice_prediction(uint32_t pc, uint8_t p1, uint8_t p2) {
+    uint32_t idx = get_GBHR(GBHR_SIZE) & ((1 << ghistoryBits) - 1);
+    uint8_t pred = choice_table[idx];
+    if(pred == WN || pred == SN){
+        // use global predictor
+        return p1;
+    }
+    else{
+        // use local predictor
+        return p2;
+    }
+}
+
+void train_choice_predictor(uint32_t pc, uint8_t p1, uint8_t p2, uint8_t outcome) {
+    if (p1 != p2) {
+        update_table(&choice_table[get_GBHR(choiceBits)], (p2 == outcome) ? TAKEN : NOTTAKEN);
+    }
+}

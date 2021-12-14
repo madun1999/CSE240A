@@ -7,19 +7,22 @@
 
 #ifndef PERCEPTRON_PREDICTOR_H
 #define PERCEPTRON_PREDICTOR_H
-
 #include <stdint.h>
 #include <stdlib.h>
+#include "predictor.h"
 
-#define PC_LSB_COUNT 6
+extern int phistoryBits;  // GBHR size
+extern int choiceBits;
+
+#define PC_LSB_COUNT pcIndexBits
 #define PERCEPTRONS_COUNT (1 << PC_LSB_COUNT)
 #define PC_LSB_MASK (PERCEPTRONS_COUNT - 1)
-#define GBHR_SIZE 63
+#define GBHR_SIZE phistoryBits
 // #define BHT_SIZE 1
 // #define HISTORY_SIZE GBHR_SIZE + BHT_SIZE
 #define HISTORY_SIZE GBHR_SIZE
-#define THRESHOLD 100
-#define WEIGHT_SIZE 9
+#define THRESHOLD ((int32_t) (1.93 * HISTORY_SIZE + 14))
+#define WEIGHT_SIZE (9)
 #define WEIGHT_MAX ((1 << (WEIGHT_SIZE - 1))-1)
 #define WEIGHT_MIN (-(WEIGHT_MAX+1))
 
@@ -44,5 +47,9 @@ uint8_t make_perceptron_prediction(uint32_t pc);
 // indicates that the branch was not taken)
 //
 void train_perceptron_predictor(uint32_t pc, uint8_t outcome);
+
+void init_choice_predictor();
+uint8_t make_choice_prediction(uint32_t pc, uint8_t p1, uint8_t p2);
+void train_choice_predictor(uint32_t pc, uint8_t p1, uint8_t p2, uint8_t outcome);
 
 #endif
