@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <string.h>
 #include "predictor.h"
+#include "perceptron_predictor.h"
+#include "common.h"
 
 //
 // TODO:Student Information
@@ -80,7 +82,6 @@ init_predictor()
   //
   //TODO: Initialize Branch Predictor Data Structures
   //
-
     switch (bpType) {
         case STATIC:
             break;
@@ -106,6 +107,13 @@ init_predictor()
             tournmt_LOCAL_PHT = (uint32_t*) malloc(sizeof(uint32_t) * (1 << pcIndexBits));
             memset(tournmt_LOCAL_PHT, 0, (1 << pcIndexBits) * sizeof(uint32_t));
             break;
+
+        case CUSTOM:{
+            init_GBHR(GBHR_SIZE);
+            init_perceptron_predictor();
+            break;
+        }
+
     }
 }
 
@@ -121,7 +129,6 @@ make_prediction(uint32_t pc)
   //
 
   // Make a prediction based on the bpType
-
     switch (bpType) {
         case STATIC:
             return TAKEN;
@@ -150,6 +157,10 @@ make_prediction(uint32_t pc)
             }
         }
 
+        case CUSTOM:{
+            return make_perceptron_prediction(pc);
+            break;
+        }
         default:
             break;
     }
@@ -192,5 +203,10 @@ train_predictor(uint32_t pc, uint8_t outcome)
             tournmt_HIST = ((tournmt_HIST << 1) & ((1 << ghistoryBits) - 1)) | outcome;
             break;
         }
-    }
+
+        case CUSTOM:{
+            train_perceptron_predictor(pc, outcome);
+            update_GBHR(outcome);
+            break;
+        }
 }
