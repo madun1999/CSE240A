@@ -183,30 +183,32 @@ train_predictor(uint32_t pc, uint8_t outcome)
         case STATIC:
             break;
 
-        case GSHARE:{
+        case GSHARE: {
             uint32_t idx = get_gshare_idx(pc, gshare_HIST);
             update_table(&gshare_BHT[idx], outcome);
             gshare_HIST = ((gshare_HIST << 1) & ((1 << ghistoryBits) - 1)) | outcome;
             break;
         }
 
-        case TOURNAMENT:{
-            if(local_pred != global_pred)
+        case TOURNAMENT: {
+            if (local_pred != global_pred)
                 update_table(&tournmt_CHOICE_BHT[tournmt_HIST], (local_pred == outcome) ? TAKEN : NOTTAKEN);
 
             uint32_t local_PHT_idx = pc & ((1 << pcIndexBits) - 1);
             uint32_t local_BHT_idx = tournmt_LOCAL_PHT[local_PHT_idx];
             update_table(&tournmt_LOCAL_BHT[local_BHT_idx], outcome);
-            tournmt_LOCAL_PHT[local_PHT_idx] = ((tournmt_LOCAL_PHT[local_PHT_idx] << 1) & ((1 << lhistoryBits) - 1)) | outcome;
+            tournmt_LOCAL_PHT[local_PHT_idx] =
+                    ((tournmt_LOCAL_PHT[local_PHT_idx] << 1) & ((1 << lhistoryBits) - 1)) | outcome;
 
             update_table(&tournmt_GLOBAL_BHT[tournmt_HIST], outcome);
             tournmt_HIST = ((tournmt_HIST << 1) & ((1 << ghistoryBits) - 1)) | outcome;
             break;
         }
 
-        case CUSTOM:{
+        case CUSTOM: {
             train_perceptron_predictor(pc, outcome);
             update_GBHR(outcome);
             break;
         }
+    }
 }
