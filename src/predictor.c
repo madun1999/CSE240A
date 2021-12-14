@@ -7,6 +7,7 @@
 //========================================================//
 #include <stdio.h>
 #include "predictor.h"
+#include "perceptron_predictor.h"
 
 //
 // TODO:Student Information
@@ -50,6 +51,16 @@ init_predictor()
   //
   //TODO: Initialize Branch Predictor Data Structures
   //
+  switch (bpType) {
+    case GSHARE:
+    case TOURNAMENT:
+      break;
+    case CUSTOM:
+      init_perceptron_predictor();
+      break;
+    default:
+      break;
+  }
 }
 
 // Make a prediction for conditional branch instruction at PC 'pc'
@@ -69,7 +80,10 @@ make_prediction(uint32_t pc)
       return TAKEN;
     case GSHARE:
     case TOURNAMENT:
+      break;
     case CUSTOM:
+      return make_perceptron_prediction(pc);
+      break;
     default:
       break;
   }
@@ -88,4 +102,13 @@ train_predictor(uint32_t pc, uint8_t outcome)
   //
   //TODO: Implement Predictor training
   //
+  switch (bpType) {
+    case GSHARE:
+    case TOURNAMENT:
+      break;
+    case CUSTOM:
+    train_perceptron_predictor(pc, outcome);
+    default:
+      break;
+  }
 }
