@@ -1,30 +1,30 @@
 Testing fp_1
 Branches:           1546797
-Incorrect:            52231
-Misprediction Rate:   3.377
+Incorrect:            21212
+Misprediction Rate:   1.371
 
 Testing fp_2
 Branches:           2422049
-Incorrect:          1140835
-Misprediction Rate:  47.102
+Incorrect:           125705
+Misprediction Rate:   5.190
 
 Testing int_1
 Branches:           3771697
-Incorrect:          1540666
-Misprediction Rate:  40.848
+Incorrect:          1169589
+Misprediction Rate:  31.010
 
 Testing int_2
 Branches:           3755315
-Incorrect:           102200
-Misprediction Rate:   2.721
+Incorrect:            47817
+Misprediction Rate:   1.273
 
 Testing mm_1
 Branches:           3014850
-Incorrect:          1451459
-Misprediction Rate:  48.144
+Incorrect:           889568
+Misprediction Rate:  29.506
 
 Testing mm_2
 Branches:           2563897
-Incorrect:           877339
-Misprediction Rate:  34.219
+Incorrect:           536607
+Misprediction Rate:  20.929
 
