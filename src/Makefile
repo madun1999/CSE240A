@@ -23,7 +23,7 @@ test_custom_all_traces: exec
 	rm custom_results.txt
 	for trace in $(TRACES); do \
 	  echo "Testing" $$trace | tee custom_results.txt -a ; \
-	  bunzip2 -kc ../traces/$$trace.bz2 | ./predictor --custom:13:63:6:8 >> custom_results.txt; \
+	  bunzip2 -kc ../traces/$$trace.bz2 | ./predictor --custom:13:63:6:13 >> custom_results.txt; \
 	  echo "" >> custom_results.txt ; \
 	done
 

@@ -1,30 +1,42 @@
 Testing fp_1
+Total storage used: 65087 
+Max storage allowed: 65792 
 Branches:           1546797
-Incorrect:            12642
-Misprediction Rate:   0.817
+Incorrect:            12670
+Misprediction Rate:   0.819
 
 Testing fp_2
+Total storage used: 65087 
+Max storage allowed: 65792 
 Branches:           2422049
-Incorrect:             6207
-Misprediction Rate:   0.256
+Incorrect:             6227
+Misprediction Rate:   0.257
 
 Testing int_1
+Total storage used: 65087 
+Max storage allowed: 65792 
 Branches:           3771697
-Incorrect:           363757
-Misprediction Rate:   9.644
+Incorrect:           320100
+Misprediction Rate:   8.487
 
 Testing int_2
+Total storage used: 65087 
+Max storage allowed: 65792 
 Branches:           3755315
-Incorrect:            12208
-Misprediction Rate:   0.325
+Incorrect:            11611
+Misprediction Rate:   0.309
 
 Testing mm_1
+Total storage used: 65087 
+Max storage allowed: 65792 
 Branches:           3014850
-Incorrect:            31891
-Misprediction Rate:   1.058
+Incorrect:            40929
+Misprediction Rate:   1.358
 
 Testing mm_2
+Total storage used: 65087 
+Max storage allowed: 65792 
 Branches:           2563897
-Incorrect:           229084
-Misprediction Rate:   8.935
+Incorrect:           211377
+Misprediction Rate:   8.244
 

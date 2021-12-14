@@ -14,20 +14,17 @@
 extern int phistoryBits;  // GBHR size
 extern int choiceBits;
 
-#define PC_LSB_COUNT pcIndexBits
-#define PERCEPTRONS_COUNT (1 << PC_LSB_COUNT)
-#define PC_LSB_MASK (PERCEPTRONS_COUNT - 1)
-#define GBHR_SIZE phistoryBits
+// #define PERCEPTRONS_COUNT (1 << pcIndexBits)
+// #define GBHR_SIZE phistoryBits
 // #define BHT_SIZE 1
-// #define HISTORY_SIZE GBHR_SIZE + BHT_SIZE
-#define HISTORY_SIZE GBHR_SIZE
-#define THRESHOLD ((int32_t) (1.93 * HISTORY_SIZE + 14))
-#define WEIGHT_SIZE (9)
+// #define HISTORY_SIZE GBHR_SIZE
+#define THRESHOLD ((int32_t) (1.93 * phistoryBits + 14))
+#define WEIGHT_SIZE 8
 #define WEIGHT_MAX ((1 << (WEIGHT_SIZE - 1))-1)
 #define WEIGHT_MIN (-(WEIGHT_MAX+1))
 
-#define TOTAL_STORAGE (PERCEPTRONS_COUNT * HISTORY_SIZE * WEIGHT_SIZE + GBHR_SIZE)
-#define MAX_ALLOWED_STORAGE (64*1024 + 256)
+// #define TOTAL_STORAGE ((1 << pcIndexBits) * phistoryBits * WEIGHT_SIZE + phistoryBits)
+#define MAX_ALLOWED_STORAGE 64*1024 + 256
 //------------------------------------//
 //    Predictor Function Prototypes   //
 //------------------------------------//

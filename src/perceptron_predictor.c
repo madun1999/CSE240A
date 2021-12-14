@@ -11,21 +11,21 @@ int choiceBits;
 
 void init_perceptron_predictor() {
     // init perceptron weight table
-    perc_w = calloc(PERCEPTRONS_COUNT, sizeof *perc_w);
-    for (uint16_t i = 0 ; i < PERCEPTRONS_COUNT; i++) {
-        perc_w[i] = calloc(HISTORY_SIZE + 1, sizeof **perc_w);
+    perc_w = calloc(1 << pcIndexBits, sizeof *perc_w);
+    for (uint16_t i = 0 ; i < (1 << pcIndexBits); i++) {
+        perc_w[i] = calloc(phistoryBits + 1, sizeof **perc_w);
     }
 }
 
 int32_t calculate_perceptron(uint32_t pc) {
-    uint64_t gbhr = get_GBHR(GBHR_SIZE);
+    uint64_t gbhr = get_GBHR(phistoryBits);
     int32_t y = 0;
-    uint32_t perceptron_idx = LSB(pc, PC_LSB_MASK);
+    uint32_t perceptron_idx = LSB(pc, FULL_BITMASK(pcIndexBits));
 
-    for (uint16_t i = 0; i < HISTORY_SIZE; i ++) {
+    for (uint16_t i = 0; i < phistoryBits; i ++) {
         y += perc_w[perceptron_idx][i] * DIGIT(gbhr, i);
     }
-    y += perc_w[perceptron_idx][HISTORY_SIZE]; // bias bit
+    y += perc_w[perceptron_idx][phistoryBits]; // bias bit
     return y;
 }
 
@@ -39,13 +39,13 @@ uint8_t make_perceptron_prediction(uint32_t pc) {
 // indicates that the branch was not taken)
 //
 void train_perceptron_predictor(uint32_t pc, uint8_t outcome) {
-    uint64_t gbhr = get_GBHR(GBHR_SIZE);
+    uint64_t gbhr = get_GBHR(phistoryBits);
     int32_t output_value = calculate_perceptron(pc);
     uint8_t predicted = (output_value >= 0) ? TAKEN : NOTTAKEN;
-    uint32_t perceptron_idx = LSB(pc, PC_LSB_MASK);
+    uint32_t perceptron_idx = LSB(pc, FULL_BITMASK(pcIndexBits));
 
     if (predicted != outcome || abs(output_value) < THRESHOLD) { // TODO: abs range?
-        for (uint16_t i = 0; i < HISTORY_SIZE; i ++) {
+        for (uint16_t i = 0; i < phistoryBits; i ++) {
             perc_w[perceptron_idx][i] += (outcome * 2 - 1) * DIGIT(gbhr, i);
             if (perc_w[perceptron_idx][i] > WEIGHT_MAX ) {
                 perc_w[perceptron_idx][i] = WEIGHT_MAX;
@@ -54,12 +54,12 @@ void train_perceptron_predictor(uint32_t pc, uint8_t outcome) {
                 perc_w[perceptron_idx][i] = WEIGHT_MIN;
             }
         }
-        perc_w[perceptron_idx][HISTORY_SIZE] += (outcome * 2 - 1); // bias bit
-        if (perc_w[perceptron_idx][HISTORY_SIZE] > WEIGHT_MAX ) {
-            perc_w[perceptron_idx][HISTORY_SIZE] = WEIGHT_MAX;
+        perc_w[perceptron_idx][phistoryBits] += (outcome * 2 - 1); // bias bit
+        if (perc_w[perceptron_idx][phistoryBits] > WEIGHT_MAX ) {
+            perc_w[perceptron_idx][phistoryBits] = WEIGHT_MAX;
         }
-        if (perc_w[perceptron_idx][HISTORY_SIZE] < WEIGHT_MIN ) {
-            perc_w[perceptron_idx][HISTORY_SIZE] = WEIGHT_MIN;
+        if (perc_w[perceptron_idx][phistoryBits] < WEIGHT_MIN ) {
+            perc_w[perceptron_idx][phistoryBits] = WEIGHT_MIN;
         }
     }
 }

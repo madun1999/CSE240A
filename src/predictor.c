@@ -125,6 +125,21 @@ init_predictor()
             init_choice_predictor();
             init_GBHR();
             init_perceptron_predictor();
+
+            //calculate total storage used
+            // perceptron storage
+            int32_t percp_storage = (1 << pcIndexBits) * phistoryBits * WEIGHT_SIZE;
+            //GBHR storage
+            int32_t gbhr_storage = phistoryBits;
+            //gshare storage
+            int32_t gshare_storage = 2 * (1 << ghistoryBits);
+            //choice storage
+            int32_t choice_storage = 2 * (1 << choiceBits);
+
+            int32_t total_storage = \
+                percp_storage + gbhr_storage + gshare_storage + choice_storage;
+            printf("Total storage used: %d \n", total_storage);
+            printf("Max storage allowed: %d \n", MAX_ALLOWED_STORAGE);
             break;
         }
 
