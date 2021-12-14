@@ -142,17 +142,19 @@ make_prediction(uint32_t pc)
         case TOURNAMENT:{
             uint32_t idx = tournmt_HIST & ((1 << ghistoryBits) - 1);
             uint8_t predictor = tournmt_CHOICE_BHT[idx];
+            uint32_t global_idx = tournmt_HIST & ((1 << ghistoryBits) - 1);
+            global_pred = tournmt_GLOBAL_BHT[global_idx];
+            uint32_t local_PHT_idx = pc & ((1 << pcIndexBits) - 1);
+            uint32_t local_BHT_idx = tournmt_LOCAL_PHT[local_PHT_idx];
+            local_pred = tournmt_LOCAL_BHT[local_BHT_idx];
             if(predictor == WN || predictor == SN){
                 // use global predictor
-                uint32_t global_idx = tournmt_HIST & ((1 << ghistoryBits) - 1);
-                global_pred = tournmt_GLOBAL_BHT[global_idx];
+                
                 return (global_pred == WN || global_pred == SN) ? NOTTAKEN : TAKEN;
             }
             else{
                 // use local predictor
-                uint32_t local_PHT_idx = pc & ((1 << pcIndexBits) - 1);
-                uint32_t local_BHT_idx = tournmt_LOCAL_PHT[local_PHT_idx];
-                local_pred = tournmt_LOCAL_BHT[local_BHT_idx];
+                
                 return (local_pred == WN || local_pred == SN) ? NOTTAKEN : TAKEN;
             }
         }
