@@ -69,20 +69,17 @@ void train_perceptron_predictor(uint32_t pc, uint8_t outcome) {
 // }
 
 uint8_t *choice_table;
-
 void init_choice_predictor() {
-    choice_table = (uint8_t*) malloc(sizeof(uint8_t) * (1 << choiceBits));
-    memset(choice_table, WN, (1 << choiceBits) * sizeof(uint8_t));
+    choice_table = malloc((1 << choiceBits) * sizeof *choice_table);
+    memset(choice_table, WN, (1 << choiceBits) * sizeof *choice_table);
 }
 uint8_t make_choice_prediction(uint32_t pc, uint8_t p1, uint8_t p2) {
-    uint32_t idx = get_GBHR(GBHR_SIZE) & ((1 << ghistoryBits) - 1);
+    uint32_t idx = get_GBHR(choiceBits);
     uint8_t pred = choice_table[idx];
     if(pred == WN || pred == SN){
-        // use global predictor
         return p1;
     }
     else{
-        // use local predictor
         return p2;
     }
 }

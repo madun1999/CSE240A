@@ -62,12 +62,13 @@ void update_table(uint8_t *cntr, uint8_t outcome) {
 }
 
 // TOURNAMENT
-uint32_t tournmt_HIST;
-uint8_t local_pred, global_pred;
+// uint32_t tournmt_HIST;
+// uint8_t local_pred, global_pred;
+uint32_t *tournmt_LOCAL_PHT;
 uint8_t *tournmt_LOCAL_BHT;
 uint8_t *tournmt_GLOBAL_BHT;
-uint8_t *tournmt_CHOICE_BHT;
-uint32_t *tournmt_LOCAL_PHT;
+// uint8_t *tournmt_CHOICE_BHT;
+
 
 
 //------------------------------------//
@@ -84,19 +85,20 @@ void gshare_init() {
 }
 
 void tournament_init() {
-    tournmt_HIST = 0;
+
+    // init local tables
+    tournmt_LOCAL_PHT = (uint32_t*) malloc(sizeof(uint32_t) * (1 << pcIndexBits));
+    memset(tournmt_LOCAL_PHT, 0, (1 << pcIndexBits) * sizeof(uint32_t));
 
     tournmt_LOCAL_BHT = (uint8_t*) malloc(sizeof(uint8_t) * (1 << lhistoryBits));
     memset(tournmt_LOCAL_BHT, WN, (1 << lhistoryBits) * sizeof(uint8_t));
 
+    // init global tables
     tournmt_GLOBAL_BHT = (uint8_t*) malloc(sizeof(uint8_t) * (1 << ghistoryBits));
     memset(tournmt_GLOBAL_BHT, WN, (1 << ghistoryBits) * sizeof(uint8_t));
 
-    tournmt_CHOICE_BHT = (uint8_t*) malloc(sizeof(uint8_t) * (1 << ghistoryBits));
-    memset(tournmt_CHOICE_BHT, WN, (1 << ghistoryBits) * sizeof(uint8_t));
 
-    tournmt_LOCAL_PHT = (uint32_t*) malloc(sizeof(uint32_t) * (1 << pcIndexBits));
-    memset(tournmt_LOCAL_PHT, 0, (1 << pcIndexBits) * sizeof(uint32_t));
+
 }
 void
 init_predictor()
@@ -112,6 +114,9 @@ init_predictor()
             break;
 
         case TOURNAMENT:
+            choiceBits = ghistoryBits;
+            init_choice_predictor();
+            init_GBHR();
             tournament_init();
             break;
 
@@ -133,23 +138,26 @@ uint8_t make_gshare_prediction(uint32_t pc) {
 }
 
 uint8_t make_tournament_prediction(uint32_t pc) {
-    uint32_t idx = tournmt_HIST & ((1 << ghistoryBits) - 1);
-    uint8_t predictor = tournmt_CHOICE_BHT[idx];
-    uint32_t global_idx = tournmt_HIST & ((1 << ghistoryBits) - 1);
-    global_pred = tournmt_GLOBAL_BHT[global_idx];
-    uint32_t local_PHT_idx = pc & ((1 << pcIndexBits) - 1);
+
+    //global
+    uint32_t global_idx = get_GBHR(ghistoryBits);
+    uint8_t global_pred = tournmt_GLOBAL_BHT[global_idx];
+    //local
+    uint32_t local_PHT_idx = pc & FULL_BITMASK(pcIndexBits);
     uint32_t local_BHT_idx = tournmt_LOCAL_PHT[local_PHT_idx];
-    local_pred = tournmt_LOCAL_BHT[local_BHT_idx];
-    if(predictor == WN || predictor == SN){
-        // use global predictor
-        
-        return (global_pred == WN || global_pred == SN) ? NOTTAKEN : TAKEN;
-    }
-    else{
-        // use local predictor
-        
-        return (local_pred == WN || local_pred == SN) ? NOTTAKEN : TAKEN;
-    }
+    uint8_t local_pred = tournmt_LOCAL_BHT[local_BHT_idx];
+
+    //choice
+    return make_choice_prediction(pc, global_pred >= WT, local_pred >= WT);
+
+    // if(choice == WN || choice == SN){
+    //     // use global predictor
+    //     return (global_pred == WN || global_pred == SN) ? NOTTAKEN : TAKEN;
+    // }
+    // else{
+    //     // use local predictor
+    //     return (local_pred == WN || local_pred == SN) ? NOTTAKEN : TAKEN;
+    // }
 }
 
 // Make a prediction for conditional branch instruction at PC 'pc'
@@ -182,6 +190,7 @@ make_prediction(uint32_t pc)
             uint8_t p1 = make_gshare_prediction(pc);
             uint8_t p2 = make_perceptron_prediction(pc);
             return make_choice_prediction(pc, p1, p2);
+            // return p2;
             break;
         }
         default:
@@ -199,17 +208,25 @@ void train_gshare_predictor(uint32_t pc, uint8_t outcome) {
 }
 
 void train_tournament_predictor(uint32_t pc, uint8_t outcome) {
-    if (local_pred != global_pred)
-        update_table(&tournmt_CHOICE_BHT[tournmt_HIST], (local_pred == outcome) ? TAKEN : NOTTAKEN);
-
-    uint32_t local_PHT_idx = pc & ((1 << pcIndexBits) - 1);
+    //global
+    uint32_t global_idx = get_GBHR(ghistoryBits);
+    uint8_t global_pred = tournmt_GLOBAL_BHT[global_idx];
+    //local
+    uint32_t local_PHT_idx = pc & FULL_BITMASK(pcIndexBits);
     uint32_t local_BHT_idx = tournmt_LOCAL_PHT[local_PHT_idx];
-    update_table(&tournmt_LOCAL_BHT[local_BHT_idx], outcome);
-    tournmt_LOCAL_PHT[local_PHT_idx] =
-            ((tournmt_LOCAL_PHT[local_PHT_idx] << 1) & ((1 << lhistoryBits) - 1)) | outcome;
+    uint8_t local_pred = tournmt_LOCAL_BHT[local_BHT_idx];
 
-    update_table(&tournmt_GLOBAL_BHT[tournmt_HIST], outcome);
-    tournmt_HIST = ((tournmt_HIST << 1) & ((1 << ghistoryBits) - 1)) | outcome;
+    //train choice
+    train_choice_predictor(pc, global_pred >= WT, local_pred >= WT, outcome);
+
+    //train local
+    tournmt_LOCAL_PHT[local_PHT_idx] =
+        ((tournmt_LOCAL_PHT[local_PHT_idx] << 1) & FULL_BITMASK(lhistoryBits)) | outcome;
+    update_table(&tournmt_LOCAL_BHT[local_BHT_idx], outcome);
+
+
+    //train global
+    update_table(&tournmt_GLOBAL_BHT[global_idx], outcome);
 }
 
 
@@ -234,6 +251,7 @@ train_predictor(uint32_t pc, uint8_t outcome)
 
         case TOURNAMENT: {
             train_tournament_predictor(pc, outcome);
+            update_GBHR(outcome);
             break;
         }
 
