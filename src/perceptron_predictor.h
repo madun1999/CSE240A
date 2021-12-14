@@ -11,17 +11,20 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define PC_LSB_COUNT 5
+#define PC_LSB_COUNT 6
 #define PERCEPTRONS_COUNT (1 << PC_LSB_COUNT)
 #define PC_LSB_MASK (PERCEPTRONS_COUNT - 1)
-#define GBHR_SIZE 32
+#define GBHR_SIZE 63
 // #define BHT_SIZE 1
 // #define HISTORY_SIZE GBHR_SIZE + BHT_SIZE
 #define HISTORY_SIZE GBHR_SIZE
-#define THRESHOLD 5
-#define WEIGHT_SIZE 8
+#define THRESHOLD 100
+#define WEIGHT_SIZE 9
 #define WEIGHT_MAX ((1 << (WEIGHT_SIZE - 1))-1)
 #define WEIGHT_MIN (-(WEIGHT_MAX+1))
+
+#define TOTAL_STORAGE (PERCEPTRONS_COUNT * HISTORY_SIZE * WEIGHT_SIZE + GBHR_SIZE)
+#define MAX_ALLOWED_STORAGE (64*1024 + 256)
 //------------------------------------//
 //    Predictor Function Prototypes   //
 //------------------------------------//

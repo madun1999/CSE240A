@@ -15,6 +15,9 @@ void init_perceptron_predictor() {
             perc_w[i][j] = 0;
         }
     }
+    int test = TOTAL_STORAGE;
+    printf("Total storage: %d\n", TOTAL_STORAGE);
+    printf("Max allowed storage: %d\n", MAX_ALLOWED_STORAGE);
 }
 
 int32_t calculate_perceptron(uint32_t pc) {
