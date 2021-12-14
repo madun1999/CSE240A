@@ -18,7 +18,7 @@
 // #define BHT_SIZE 1
 // #define HISTORY_SIZE GBHR_SIZE + BHT_SIZE
 #define HISTORY_SIZE GBHR_SIZE
-#define THRESHOLD 100
+#define THRESHOLD 135
 #define WEIGHT_SIZE 9
 #define WEIGHT_MAX ((1 << (WEIGHT_SIZE - 1))-1)
 #define WEIGHT_MIN (-(WEIGHT_MAX+1))
